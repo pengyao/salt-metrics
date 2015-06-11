@@ -70,7 +70,9 @@ class MasterMetrics(BaseMetrics):
             self.keys = salt.key.RaetKey(self.opts)
         self.ckminions = salt.utils.minions.CkMinions(self.opts)
         # Event and func metrics
-        self.event_connoisseur = EventConnoisseur(self.opts)
+        self.event_connoisseur = EventConnoisseur(
+            self.opts,
+            ext_fingers=self.metric_opts.get('ext_event_finger'))
         self.metrics['event'] = {}
         self.metrics['func'] = {}
 
