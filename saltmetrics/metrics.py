@@ -26,7 +26,7 @@ class BaseMetrics(object):
         self.opts = opts
         self.metric_opts = self.opts.get('metrics', dict())
         self.update_interval = self.metric_opts.get('update_interval', self.opts.get('loop_interval', 60))
-        self.metric_saved_path = self.metric_opts.get('saved_path', '')
+        self.metric_saved_path = self.metric_opts.get('saved_path', '/tmp/salt_metrics.json')
         self.metrics = {
             'id': self.opts.get('id', ''),
             'role': self.role,
@@ -102,7 +102,7 @@ class MasterMetrics(BaseMetrics):
                 finger = self.event_connoisseur.queue.get_nowait()
             except Empty:
                 finger = ()
-            if finger and len(finger) == 2:
+            if finger and len(finger) >= 2:
                 tag = finger[0]
                 func = finger[1]
                 if tag not in self.metrics['event']:
