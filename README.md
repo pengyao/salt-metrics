@@ -26,6 +26,7 @@ ext_processes:
 metrics:
   update_interval: 30
   saved_path: /tmp/salt_metrics.json
+  persistence: True
 ```
 
 * Restart salt master
