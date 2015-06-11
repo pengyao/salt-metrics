@@ -48,6 +48,20 @@ class BaseMetrics(object):
             with open(self.metric_saved_path, 'w') as fd:
                 json.dump(self.metrics, fd)
 
+    def load_metrics(self):
+        '''
+        load metrics from file,and remove 'saved_time','is_running' fields。
+        :return:
+        '''
+        with open(self.metric_saved_path) as fp:
+            d=json.load(fp)
+        for k in ['saved_time','is_running']:
+            if d.has_key(k):
+                d.pop(k)
+        log.debug('Loading metrics from {0}'.format(self.metric_saved_path))
+        self.metrics.update(d)
+
+
     def start(self):
         last = time.time()
         while True:
@@ -94,6 +108,8 @@ class MasterMetrics(BaseMetrics):
 
     def start(self):
         # Start event connoisseur
+        if self.metric_opts.get('persistence',False):
+            self.load_metrics()
 
         self.event_connoisseur.start()
         last = time.time()
