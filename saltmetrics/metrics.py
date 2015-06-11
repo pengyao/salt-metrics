@@ -115,7 +115,6 @@ class MasterMetrics(BaseMetrics):
                 self.metrics.update(dict(minions=self.minions))
                 self.save_metrics()
                 last = time.time()
-            time.sleep(1)
 
 
 # TODO
