@@ -6,6 +6,7 @@ import logging
 import json
 import time
 from Queue import Empty
+import os
 
 # Import salt.libs
 import salt.key
@@ -49,20 +50,25 @@ class BaseMetrics(object):
                 json.dump(self.metrics, fd)
 
     def load_metrics(self):
-        '''
+        """
         load metrics from file,and remove 'saved_time','is_running' fields。
-        :return:
-        '''
-        with open(self.metric_saved_path) as fp:
-            d=json.load(fp)
-        for k in ['saved_time','is_running']:
-            if d.has_key(k):
-                d.pop(k)
-        log.debug('Loading metrics from {0}'.format(self.metric_saved_path))
-        self.metrics.update(d)
+        """
+        ignore_metrics = ['saved_time', 'is_running']
 
+        if os.path.isfile(self.metric_saved_path):
+            log.debug('I will load latest metrics from {0}'.format(self.metric_saved_path))
+            with open(self.metric_saved_path) as fp:
+                latest_metrics = json.load(fp)
+            for _metric in ignore_metrics:
+                if _metric in latest_metrics:
+                    del latest_metrics[_metric]
+            self.metrics.update(latest_metrics)
+            log.debug('Load latest metrics success, metrics: {0}'.format(self.metrics))
 
     def start(self):
+        if self.metric_opts.get('persistence', False):
+            self.load_metrics()
+
         last = time.time()
         while True:
             # Write to metric file
@@ -107,10 +113,10 @@ class MasterMetrics(BaseMetrics):
         }
 
     def start(self):
-        # Start event connoisseur
-        if self.metric_opts.get('persistence',False):
+        if self.metric_opts.get('persistence', False):
             self.load_metrics()
 
+        # Start event connoisseur
         self.event_connoisseur.start()
         last = time.time()
         while True:
