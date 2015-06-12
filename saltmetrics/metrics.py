@@ -57,13 +57,18 @@ class BaseMetrics(object):
 
         if os.path.isfile(self.metric_saved_path):
             log.debug('I will load latest metrics from {0}'.format(self.metric_saved_path))
-            with open(self.metric_saved_path) as fp:
-                latest_metrics = json.load(fp)
-            for _metric in ignore_metrics:
-                if _metric in latest_metrics:
-                    del latest_metrics[_metric]
-            self.metrics.update(latest_metrics)
-            log.debug('Load latest metrics success, metrics: {0}'.format(self.metrics))
+            try:
+                with open(self.metric_saved_path) as fp:
+                    latest_metrics = json.load(fp)
+                for _metric in ignore_metrics:
+                    if _metric in latest_metrics:
+                        del latest_metrics[_metric]
+                self.metrics.update(latest_metrics)
+            except Exception, e:
+                log.warn('Load latest metrics failed, because: {0}'.format(e))
+                log.warn('Ignore latest metrics......')
+            else:
+                log.debug('Load latest metrics success, metrics: {0}'.format(self.metrics))
 
     def start(self):
         if self.metric_opts.get('persistence', False):
